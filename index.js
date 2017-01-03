@@ -25,6 +25,16 @@ const connector = new builder.ChatConnector({
 
 const bot = new builder.UniversalBot(connector)
 
+const intents = new builder.IntentDialog()
+bot.dialog('/', intents)
+
+intents.matches(/^\\!list/i, [
+  function (session) {
+    const listService = list(datasource)
+    session.send(listService.list())
+  }
+])
+
 app.post('/api/messages', connector.listen())
 
 
