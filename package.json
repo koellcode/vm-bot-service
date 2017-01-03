@@ -1,0 +1,20 @@
+{
+  "name": "vm-bot-service",
+  "version": "0.0.1",
+  "description": "A bot to manage VM usage accross team",
+  "engines": {
+    "node": "7.3.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koellcode/vm-bot-service"
+  },
+  "license": "MIT"
+}
