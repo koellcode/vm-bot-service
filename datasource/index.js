@@ -1,9 +1,10 @@
 const rawlist = require('./list')
 
 class ListEntry {
-  constructor(vm, user) {
+  constructor(vm, user, status = 'free') {
     this.name = vm
     this.user = user
+    this.status = status
   }
 }
 
