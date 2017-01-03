@@ -29,7 +29,7 @@ const sendList = (session) => {
     .textFormat(builder.TextFormat.xml)
     .attachments(
       listService.list().map(entry => {
-        const subtitle = entry.status ? `Status: ${entry.status} by ${entry.user}` : 'Status: free'
+        const subtitle = entry.status ? `Status: \u274C ${entry.status} by ${entry.user}` : 'Status: \u2705'
 
         const buttons = [
           builder.CardAction.postBack(session, `!take:${entry.name}`, "Take")
