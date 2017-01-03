@@ -29,6 +29,7 @@ app.post('/take/:vm', (req, res) => {
 })
 
 app.post('/messaging', (req, res) => {
+  console.log(req.body)
   res.json(req.body)
 })
 
