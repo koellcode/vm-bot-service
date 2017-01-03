@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 
+// datasource
+const datasource = require('./datasource')
+
 // services
 const list = require('./service/list')
 
@@ -12,7 +15,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/list', (req, res) => {
-  res.json(list())
+  res.json(list(datasource))
 })
 
 app.listen(app.get('port'), () => {
