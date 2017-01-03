@@ -6,7 +6,7 @@ const datasource = require('./datasource')
 
 // services
 const list = require('./service/list')
-
+const take = require('./service/take')
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -15,7 +15,13 @@ app.get('/', (req, res) => {
 })
 
 app.get('/list', (req, res) => {
-  res.json(list(datasource))
+  const listService = list(datasource)
+  res.json(listService.list())
+})
+
+app.post('/take/:vm', (req, res) => {
+  const takeService = take(datasource)
+  res.json(takeService.take(req.params.vm))
 })
 
 app.listen(app.get('port'), () => {
