@@ -1,5 +1,9 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 // datasource
 const datasource = require('./datasource')
@@ -22,6 +26,10 @@ app.get('/list', (req, res) => {
 app.post('/take/:vm', (req, res) => {
   const takeService = take(datasource)
   res.json(takeService.take(req.params.vm))
+})
+
+app.post('/messaging', (req, res) => {
+  res.json(req.body)
 })
 
 app.listen(app.get('port'), () => {
