@@ -13,6 +13,7 @@ const datasource = require('./datasource')
 // services
 const list = require('./service/list')
 const take = require('./service/take')
+const free = require('./service/free')
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -28,28 +29,56 @@ const bot = new builder.UniversalBot(connector)
 const intents = new builder.IntentDialog()
 bot.dialog('/', intents)
 
-intents.matches(/^\\!list/i, [
+intents.matches(/^\!list/i, [
   function (session) {
     const listService = list(datasource)
-    session.send(listService.list())
+    const msg = new builder.Message(session)
+      .textFormat(builder.TextFormat.xml)
+      .attachments(
+        listService.list().map(entry => {
+          const subtitle = entry.status ? `Status: ${entry.status} by ${entry.user}` : 'Status: free'
+
+          const buttons = [
+            builder.CardAction.postBack(session, `!take:${entry.name}`, "Take")
+          ]
+
+          if(entry.status) {
+            buttons.push(
+              builder.CardAction.postBack(session, `!free:${entry.name}`, "Free")
+            )
+          }
+
+          return new builder.HeroCard(session)
+            .title(entry.name)
+            .subtitle(subtitle)
+            .buttons(buttons)
+        })
+      )
+    session.send(msg)
+  }
+])
+
+intents.matches(/^\!take:.+/i, [
+  function (session) {
+    const takeService = take(datasource)
+    const vmName = session.message.text.match(/\!take:(.+)/i)[1]
+    const userName = session.message.user.name
+    takeService.take(vmName, userName)
+  }
+])
+
+intents.matches(/^\!free:.+/i, [
+  function (session) {
+    const freeService = free(datasource)
+    const vmName = session.message.text.match(/\!free:(.+)/i)[1]
+    freeService.free(vmName)
   }
 ])
 
 app.post('/api/messages', connector.listen())
 
-
 app.get('/', (req, res) => {
   res.json({status: 'ok'})
-})
-
-app.get('/list', (req, res) => {
-  const listService = list(datasource)
-  res.json(listService.list())
-})
-
-app.post('/take/:vm', (req, res) => {
-  const takeService = take(datasource)
-  res.json(takeService.take(req.params.vm))
 })
 
 app.listen(app.get('port'), () => {

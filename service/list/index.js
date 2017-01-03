@@ -1,11 +1,8 @@
 module.exports = (datasource = {}) => {
   const vmlist = datasource.get('vm-list')
 
-  const list = () => {
-    return {
-      list: vmlist
-    }
-  }
+  const list = () => vmlist
+  
   return {
     list,
   }
