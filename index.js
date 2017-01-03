@@ -23,6 +23,32 @@ const connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 })
 
+const sendList = (session) => {
+  const listService = list(datasource)
+  const msg = new builder.Message(session)
+    .textFormat(builder.TextFormat.xml)
+    .attachments(
+      listService.list().map(entry => {
+        const subtitle = entry.status ? `Status: ${entry.status} by ${entry.user}` : 'Status: free'
+
+        const buttons = [
+          builder.CardAction.postBack(session, `!take:${entry.name}`, "Take")
+        ]
+
+        if(entry.status) {
+          buttons.push(
+            builder.CardAction.postBack(session, `!free:${entry.name}`, "Free")
+          )
+        }
+
+        return new builder.HeroCard(session)
+          .title(entry.name)
+          .subtitle(subtitle)
+          .buttons(buttons)
+      })
+    )
+  session.send(msg)
+}
 
 const bot = new builder.UniversalBot(connector)
 
@@ -31,30 +57,7 @@ bot.dialog('/', intents)
 
 intents.matches(/^\!list/i, [
   function (session) {
-    const listService = list(datasource)
-    const msg = new builder.Message(session)
-      .textFormat(builder.TextFormat.xml)
-      .attachments(
-        listService.list().map(entry => {
-          const subtitle = entry.status ? `Status: ${entry.status} by ${entry.user}` : 'Status: free'
-
-          const buttons = [
-            builder.CardAction.postBack(session, `!take:${entry.name}`, "Take")
-          ]
-
-          if(entry.status) {
-            buttons.push(
-              builder.CardAction.postBack(session, `!free:${entry.name}`, "Free")
-            )
-          }
-
-          return new builder.HeroCard(session)
-            .title(entry.name)
-            .subtitle(subtitle)
-            .buttons(buttons)
-        })
-      )
-    session.send(msg)
+    sendList(session)
   }
 ])
 
@@ -64,6 +67,7 @@ intents.matches(/^\!take:.+/i, [
     const vmName = session.message.text.match(/\!take:(.+)/i)[1]
     const userName = session.message.user.name
     takeService.take(vmName, userName)
+    sendList(session)
   }
 ])
 
@@ -72,6 +76,7 @@ intents.matches(/^\!free:.+/i, [
     const freeService = free(datasource)
     const vmName = session.message.text.match(/\!free:(.+)/i)[1]
     freeService.free(vmName)
+    sendList(session)
   }
 ])
 
